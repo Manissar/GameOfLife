@@ -1,11 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,8 +17,8 @@ class Window extends JFrame {
     private int x = 0;
     private int y = 0;
     public static final int TAILLECARRE = 20;
-    private boolean[][] arr = new boolean[WIDTH/TAILLECARRE][HEIGHT/TAILLECARRE];
-    private boolean[][] arrNext = new boolean[WIDTH/TAILLECARRE][HEIGHT/TAILLECARRE];
+    private final boolean[][] arr = new boolean[WIDTH/TAILLECARRE][HEIGHT/TAILLECARRE];
+    private final boolean[][] arrNext = new boolean[WIDTH/TAILLECARRE][HEIGHT/TAILLECARRE];
     Pan p = new Pan();
     JPanel choicePanel = new JPanel();
     JButton startButton = new JButton("START");
@@ -29,6 +26,7 @@ class Window extends JFrame {
     boolean isRunning = false;
 
     public Window(String title){
+        super(title);
         p.setBackground(Color.GRAY);
 
         startButton.setFocusable(false);
@@ -38,19 +36,16 @@ class Window extends JFrame {
 
         resetButton.setFocusable(false);
         resetButton.setBackground(Color.ORANGE);
-        resetButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (int i = 0; i < arr.length; i++) {
-                    for (int j = 0; j < arr[0].length; j++) {
-                        arr[i][j] = false;
-                        arrNext[i][j] = false;
-                        p.repaint();
-                    }
+        resetButton.addActionListener(e -> {
+            for (int i = 0; i < arr.length; i++) {
+                for (int j = 0; j < arr[0].length; j++) {
+                    arr[i][j] = false;
+                    arrNext[i][j] = false;
+                    p.repaint();
                 }
-                startButton.setText("START");
-                isRunning = false;
             }
+            startButton.setText("START");
+            isRunning = false;
         });
 
         choicePanel.add(startButton);
@@ -89,22 +84,20 @@ class Window extends JFrame {
             }
             for (int i = 0; i < arr.length; i++) {
                 for (int j = 0; j < arr[0].length; j++) {
-                    if (arr[i][j] == true && numberOfNeighbours(i,j) < 2) {
+                    if (arr[i][j] && numberOfNeighbours(i,j) < 2) {
                         arrNext[i][j] = false;
                     }
-                    else  if (arr[i][j] == true && numberOfNeighbours(i,j) > 3)
+                    else  if (arr[i][j] && numberOfNeighbours(i,j) > 3)
                         arrNext[i][j] = false;
-                    else  if (arr[i][j] == true && (numberOfNeighbours(i,j) == 3 || numberOfNeighbours(i,j) == 2))
+                    else  if (arr[i][j] && (numberOfNeighbours(i,j) == 3 || numberOfNeighbours(i,j) == 2))
                         arrNext[i][j] = true;
-                    else  if (arr[i][j] == false && numberOfNeighbours(i,j) == 3)
+                    else  if (!arr[i][j] && numberOfNeighbours(i,j) == 3)
                         arrNext[i][j] = true;
                 }
             }
 
         for (int i = 0; i < arr.length; i++) {
-            for (int j = 0; j < arr[0].length; j++) {
-                arr[i][j] = arrNext[i][j];
-             }
+            System.arraycopy(arrNext[i], 0, arr[i], 0, arr[0].length);
             }
 
     }
@@ -176,10 +169,7 @@ class Window extends JFrame {
                     if (!isRunning) {
                         x = (int) (Math.floor((e.getX()) / (float) TAILLECARRE)) * TAILLECARRE;
                         y = (int) (Math.floor((e.getY()) / (float) TAILLECARRE)) * TAILLECARRE;
-                        if (arr[y / TAILLECARRE][x / TAILLECARRE] == true)
-                            arr[y / TAILLECARRE][x / TAILLECARRE] = false;
-                        else
-                            arr[y / TAILLECARRE][x / TAILLECARRE] = true;
+                        arr[y / TAILLECARRE][x / TAILLECARRE] = !arr[y / TAILLECARRE][x / TAILLECARRE];
                         p.repaint();
                     }
                 }
@@ -197,7 +187,7 @@ class Window extends JFrame {
 
             for (int i = 0; i < arr.length; i++) {
                 for (int j = 0; j < arr[0].length; j++) {
-                    if (arr[i][j] == true) {
+                    if (arr[i][j]) {
                         g.setColor(Color.yellow);
                         g.fillRect(j * TAILLECARRE, i* TAILLECARRE, TAILLECARRE, TAILLECARRE);
                         g.setColor(Color.BLACK);
