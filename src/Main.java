@@ -48,6 +48,8 @@ class Window extends JFrame {
                         p.repaint();
                     }
                 }
+                startButton.setText("START");
+                isRunning = false;
             }
         });
 
